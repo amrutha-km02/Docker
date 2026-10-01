@@ -2,7 +2,7 @@ pipeline{
     agent any
 
     environment{
-        DOCKER_IMAGE = "amruthakm02/app-image"
+        DOCKER_IMAGE = "amruthakm02/agoda"
     }
     stages{
         stage('clone repository'){
@@ -19,8 +19,8 @@ pipeline{
         }
         stage('login to Docker Hub'){
             steps{
-                withcredentials([amruthakm02dckr_pat_DWwvF4Jz0Z2HUrHLRDHCRyY4mQw(
-                    credentialsID:';dockerhub=-creds',
+                withcredentials([usernamePassword(
+                    credentialsID:';dockerhub-creds',
                     usernameVariable:'DOCKER_USER',
                     passwordVariable:'DOCKER_PASS'
                 )]){
