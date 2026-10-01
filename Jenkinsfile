@@ -10,7 +10,7 @@ pipeline{
                 git 'https://github.com/amruthakm02/https://github.com/amrutha-km02/Docker.git'
             }
         }
-        stages('Build Docker Image'){
+        stage('Build Docker Image'){
             steps{
                 script{
                     docker.build("${DOCKER_IMAGE}:latest")
