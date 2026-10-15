@@ -1,49 +1,52 @@
-pipeline{
+pipeline {
     agent any
 
-    environment{
+    environment {
         DOCKER_IMAGE = "amruthakm02/agoda"
     }
-    stages{
-        stage('clone repository'){
-            steps{
-                git 'https://github.com/amruthakm02/https://github.com/amrutha-km02/Docker.git'
+
+    stages {
+        stage('Clone Repository') {
+            steps {
+                git branch: 'main',
+                    url: 'https://github.com/amrutha-km02/Docker.git'
             }
         }
-        stage('Build Docker Image'){
-            steps{
-                script{
-                    docker.build("${DOCKER_IMAGE}:latest")
+
+        stage('Build Docker Image') {
+            steps {
+                bat 'docker build -t %DOCKER_IMAGE%:latest .'
+            }
+        }
+
+        stage('Login to Docker Hub') {
+            steps {
+                withCredentials([string(
+                    credentialsId: 'dockerhub-creds',
+                    variable: 'DOCKER_PAT'
+                )]) {
+                    bat '''
+                    @echo off
+                    echo %DOCKER_PAT%|docker login -u amruthakm02 --password-stdin
+                   if errorlevel 1 exit /b 1
+                    '''
                 }
             }
         }
-        stage('login to Docker Hub'){
-            steps{
-                withcredentials([usernamePassword(
-                    credentialsID:';dockerhub-creds',
-                    usernameVariable:'DOCKER_USER',
-                    passwordVariable:'DOCKER_PASS'
-                )]){
-                    bat 'echo $DOCKER_PASS | docker login -u $DOCKRER_USER --password-stdin'
-                }
-            }
-        }
-        stage('Push Docker Image'){
-            steps{
-                script{
-                    docker.withRegistry('','dockerhub-creds'){
-                        docker.image("${agoda}:latest").push()
-                    }
-                }
+
+        stage('Push Docker Image') {
+            steps {
+                bat 'docker push %DOCKER_IMAGE%:latest'
             }
         }
     }
-    post{
-        success{
-            echo 'Image successfully built and pushed to Docker Hub'
+
+    post {
+        success {
+            echo 'Docker image built and pushed successfully.'
         }
-        failure{
-            echo 'Pipeline failed'
+        failure {
+            echo 'Pipeline failed. Check Console Output.'
         }
     }
 }
